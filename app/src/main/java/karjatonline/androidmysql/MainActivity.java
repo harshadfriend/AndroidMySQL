@@ -10,7 +10,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
@@ -38,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
     JSONArray products = null;
     ArrayAdapter<String> contactList;
     String url = "https://wwwkarjatonlinecom.000webhostapp.com/add.php";
-    TextView tv;
+    String url2 = "https://wwwkarjatonlinecom.000webhostapp.com/getdata.php";
+
     ListView listview;
 
     StrictMode.ThreadPolicy policy=new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -53,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         btnSubmit=findViewById(R.id.btnSubmit);
 
         listview=findViewById(R.id.lv);
-        tv = findViewById(R.id.tv);
 
         new CountDownTimer(10000,1000){
             @Override
@@ -66,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }.start();
+
+        getJSON(url2);
 
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 //            Log.d(“well5”, “msg”);
 
                 }
-                getJSON(url);
+                getJSON(url2);
             }
         });
 
