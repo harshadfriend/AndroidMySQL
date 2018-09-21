@@ -2,36 +2,114 @@ package karjatonline.androidmysql;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    EditText etName,etMobile;
+    Button btnSubmit;
     JSONArray products = null;
     ArrayAdapter<String> contactList;
     String url = "https://wwwkarjatonlinecom.000webhostapp.com/add.php";
     TextView tv;
     ListView listview;
 
+    StrictMode.ThreadPolicy policy=new StrictMode.ThreadPolicy.Builder().permitAll().build();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        etName=findViewById(R.id.etName);
+        etMobile=findViewById(R.id.etMobile);
+        btnSubmit=findViewById(R.id.btnSubmit);
+
         listview=findViewById(R.id.lv);
         tv = findViewById(R.id.tv);
-        getJSON(url);
+
+        new CountDownTimer(10000,1000){
+            @Override
+            public void onTick(long millisUntilFinished) {
+            //    getJSON(url);
+            }
+
+            @Override
+            public void onFinish() {
+
+            }
+        }.start();
+
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList nameValuePairs = new ArrayList();
+
+                nameValuePairs.add(new BasicNameValuePair("name",etName.getText().toString().trim()));
+
+                nameValuePairs.add(new BasicNameValuePair("mobile",etMobile.getText().toString().trim()));
+
+
+//        Log.d(“well2”, “msg”);
+                StrictMode.setThreadPolicy(policy);
+
+//        Log.d(“well3”, “msg”);
+//http post
+                try{
+                    HttpClient httpclient = new DefaultHttpClient();
+
+                    HttpPost httppost = new HttpPost(url);
+
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+                    HttpResponse response = httpclient.execute(httppost);
+                    HttpEntity entity = response.getEntity();
+                    InputStream is = entity.getContent();
+//            Log.d(“well4”, “msg”);
+
+//            Log.e(“log_tag”, “connection success “);
+                    //  Toast.makeText(getApplicationContext(), "Please Wait….", Toast.LENGTH_SHORT).show();
+                }
+
+                catch(Exception e)
+                {
+//            Log.e(“log_tag”, “Error in http connection “+e.toString());
+                    Toast.makeText(getApplicationContext(), "Connection fail", Toast.LENGTH_SHORT).show();
+//            Log.d(“well5”, “msg”);
+
+                }
+                getJSON(url);
+            }
+        });
+
+
+
     }
 
     private void getJSON(final String urlWebService) {
@@ -61,7 +139,9 @@ public class MainActivity extends AppCompatActivity {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
      //           Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-                tv.setText(s);
+              //  tv.setText(s);
+
+
                 try {
                     loadIntoListView(s);
                 } catch (JSONException e) {
@@ -117,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
         String[] heroes = new String[jsonArray.length()];
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject obj = jsonArray.getJSONObject(i);
-            heroes[i] = obj.getString("mobile");
+            heroes[i] = obj.getString("name")+" "+obj.getString("mobile");
         }
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, heroes);
         listview.setAdapter(arrayAdapter);
